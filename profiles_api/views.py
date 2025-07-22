@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
+from . import serializers
 
 class HelloApiView(APIView):
     """Test API View"""
+    serializer_class = serializers.HelloSerializer
 
     def get(self, request, format=None):
         """Returns a list of APIView features"""
@@ -14,4 +17,30 @@ class HelloApiView(APIView):
             'Is mapped manually to URL',
         ]
 
-        return Response({'message': 'Hello!', 'an_apiview': an_apiview})
+        return Response({'Saludo': 'Hello!', 'an_apiview': an_apiview})
+    
+    def post(self, request):
+        "Create a hello with our name"
+        serializer = self.serializer_class(data=request.data )
+
+        if serializer.is_valid():
+            name = serializer.validated_data.get('name') # type: ignore
+            message = f'Hello {name}'
+            return Response({'message':message})
+        else:
+            return Response(
+                serializer.errors,
+                status= status.HTTP_400_BAD_REQUEST
+                )
+        
+    def put(self,request, pk=None):
+        "Update objetcs"
+        return Response({'method':'PUT'})
+    
+    def patch(self, request, pk=None):
+        "Update only the object that we specify"
+        return Response({'method': 'PATCH'})
+    
+    def delete(self, request, pk=None):
+        "Deleate objects"
+        return Response({'method':'DELETE'})
